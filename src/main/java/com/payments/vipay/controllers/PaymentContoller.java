@@ -1,6 +1,7 @@
 package com.payments.vipay.controllers;
 
 import com.payments.vipay.data.PaymentRequest;
+import com.payments.vipay.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,19 @@ import java.util.Map;
 public class PaymentContoller {
 
     @Autowired
-    private KafkaTemplate<String, PaymentRequest> kafkaTemplate;
+    private PaymentService paymentService;
 
     @PostMapping
     public ResponseEntity sendMoney(@RequestBody PaymentRequest paymentRequest) throws InterruptedException{
+        try
+        {
+            paymentService.processPayment(paymentRequest);
+            return new ResponseEntity<>(Map.of("message","Payment sent"), HttpStatus.OK);
+        }
+        catch (Exception e)
+        {
+            return new ResponseEntity<>(Map.of("message","Payment Failed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
-        return new ResponseEntity<>(Map.of("message","Payment sent"), HttpStatus.OK);
     }
 }
