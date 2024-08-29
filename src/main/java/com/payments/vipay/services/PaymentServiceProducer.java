@@ -6,13 +6,13 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PaymentService implements PaymentServiceInt {
+public class PaymentServiceProducer implements PaymentServiceInt {
 
     @Autowired
     private KafkaTemplate<String, PaymentRequest> kafkaTemplate;
 
     @Override
     public void processPayment(PaymentRequest paymentRequest) {
-
+        kafkaTemplate.send("payment_initiated",paymentRequest);
     }
 }
