@@ -6,6 +6,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.retrytopic.DltStrategy;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +17,7 @@ public class PaymentServiceConsumer {
 
     @RetryableTopic(
             attempts = "3",
-            backoff = @Backoff(delay = 1000),
-            autoStartDltHandler = ""
+            backoff = @Backoff(delay = 1000)
     )
     @KafkaListener(topics = "payment_initiated", groupId = "payment-group", containerFactory = "kafkaListenerContainerFactory")
     public void topicConsumer(PaymentRequest paymentRequest) throws Exception {
@@ -26,7 +26,7 @@ public class PaymentServiceConsumer {
             validateRequest(paymentRequest);
         } catch (Exception e) {
             logger.error("Error processing payment: {}", paymentRequest, e);
-            throw new RuntimeException(e);  // Rethrow the exception to trigger retries and DLT
+            throw new RuntimeException(e);
         }
 
     }
