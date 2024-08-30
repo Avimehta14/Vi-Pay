@@ -6,7 +6,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.RetryableTopic;
-import org.springframework.kafka.retrytopic.DltStrategy;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +37,7 @@ public class PaymentServiceConsumer {
         }
         else {
             logger.info("Successful Payment");
-            System.out.println("Payment sent ...Lesgooo");
+            System.out.println("Payment sent ...Letsgooo");
         }
     }
 
