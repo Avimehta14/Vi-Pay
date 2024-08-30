@@ -5,37 +5,46 @@ import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.stereotype.Service;
 
-public class PaymentServiceConsumer
-{
+@Service
+public class PaymentServiceConsumer {
+
     private static final Logger logger = LoggerFactory.getLogger(PaymentServiceConsumer.class);
 
-    @KafkaListener(topics= "payment_initiated", groupId = "payment-group", containerFactory = "kafkaListenerContainerFactory")
-    public void topicCosnumer(PaymentRequest paymentRequest) throws Exception {
+    @RetryableTopic(
+            attempts = "3",
+            backoff = @Backoff(delay = 1000),
+            autoStartDltHandler = ""
+    )
+    @KafkaListener(topics = "payment_initiated", groupId = "payment-group", containerFactory = "kafkaListenerContainerFactory")
+    public void topicConsumer(PaymentRequest paymentRequest) throws Exception {
+        logger.info("Received payment request: {}", paymentRequest);
         try {
-            processPayments(paymentRequest);
+            validateRequest(paymentRequest);
+        } catch (Exception e) {
+            logger.error("Error processing payment: {}", paymentRequest, e);
+            throw new RuntimeException(e);  // Rethrow the exception to trigger retries and DLT
         }
-        catch (Exception e)
-        {
-            throw e;
-        }
+
     }
 
-    private void processPayments(PaymentRequest paymentRequest) throws Exception {
-
-        if (paymentRequest.getAmount() < 0)
-        {
-            logger.error("Payament is invalid");
-            throw new Exception("Inavlid Payment Amount");
+    private void validateRequest(PaymentRequest paymentRequest) throws Exception {
+        if (paymentRequest == null || paymentRequest.getUserId() == null || paymentRequest.getAmount() < 0) {
+            logger.error("Invalid payment request: {}", paymentRequest);
+            throw new RuntimeException("Invalid Payment Request");
         }
-        System.out.println("payment Processed Successfuly");
-        logger.error("payment not processed !!!!!");
+        else {
+            logger.info("Successful Payment");
+            System.out.println("Payment sent ...Lesgooo");
+        }
     }
 
     @DltHandler
-    public void handleDlt(PaymentRequest paymentRequest)
-    {
-        logger.error("DLT handling the error");
-        System.err.println("handling error in message" + paymentRequest);
+    public void handleDlt(PaymentRequest paymentRequest) {
+        logger.error("Handling message in DLT: {}", paymentRequest);
+        System.err.println("Handling error in message: " + paymentRequest);
     }
 }
