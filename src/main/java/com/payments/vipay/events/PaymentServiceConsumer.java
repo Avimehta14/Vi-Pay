@@ -43,7 +43,7 @@ public class PaymentServiceConsumer {
 
     @DltHandler
     public void handleDlt(PaymentRequest paymentRequest) {
-        logger.error("Handling message in DLT: {}", paymentRequest);
+        logger.error("Handling message in DLT : {}", paymentRequest);
         System.err.println("Handling error in message: " + paymentRequest);
     }
 }
