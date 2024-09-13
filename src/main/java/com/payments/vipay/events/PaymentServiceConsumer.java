@@ -37,7 +37,7 @@ public class PaymentServiceConsumer {
         }
         else {
             logger.info("Successful Payment");
-            System.out.println("Payment sent ...Letsgooo");
+            System.out.println("Payment sent ...Letsgoo");
         }
     }
 
