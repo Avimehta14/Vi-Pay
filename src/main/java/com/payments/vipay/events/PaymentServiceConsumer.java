@@ -16,8 +16,7 @@ public class PaymentServiceConsumer {
 
     @RetryableTopic(
             attempts = "3",
-            backoff = @Backoff(delay = 1000)
-    )
+            backoff = @Backoff(delay = 1000))
     @KafkaListener(topics = "payment_initiated", groupId = "payment-group", containerFactory = "kafkaListenerContainerFactory")
     public void topicConsumer(PaymentRequest paymentRequest) throws Exception {
         logger.info("Received payment request: {}", paymentRequest);
